@@ -1,6 +1,8 @@
 import { WebSocketServer } from 'ws';
-import { Command } from './types';
-import { actionsMap } from './actions';
+import { ClientsMap, Command } from './types';
+import { commandsMap } from './commands';
+
+export const registeredClients: ClientsMap = new Map();
 
 export const startWsServer = (port: number) => {
   const wsServer = new WebSocketServer({ port }, () =>
@@ -9,25 +11,22 @@ export const startWsServer = (port: number) => {
 
   wsServer.on('connection', (ws) => {
     console.log(`A client just connected`);
-
-    ws.on('error', console.error);
-
     ws.on('message', (message) => {
-      console.log('received: %s', message);
-
       try {
-        const command: Command = JSON.parse(message.toString());
-        console.log(command);
-        const action = actionsMap.get(command.type);
+        console.log(message.toString());
+        const { type, data }: Command = JSON.parse(message.toString());
 
-        if (action) {
-          const response = action(command);
-          console.log(response);
-          ws.send(response);
-        }
+        const action = commandsMap.get(type);
+        if (action) action(ws, data);
       } catch (err) {
         console.error(err);
       }
     });
+
+    ws.on('close', () => {
+      registeredClients.delete(ws);
+    });
+
+    ws.on('error', console.error);
   });
 };
