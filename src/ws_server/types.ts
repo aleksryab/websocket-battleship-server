@@ -1,22 +1,17 @@
 import { WebSocket } from 'ws';
 import { CommandTypes } from './constants';
+import { BattleShipGame } from './BattleShipGame';
+import { PlayerInRoom } from './dataBase';
 
 interface PlayerInfo {
   index: number;
   name: string;
 }
 
-// export interface ExtWebSocket extends WebSocket {
-//   id: string;
-//   player: PlayerInfo;
-// }
-
 export type ClientsMap = Map<WebSocket, PlayerInfo>;
 
-export type CommandTypesList = (typeof CommandTypes)[keyof typeof CommandTypes];
-
 export interface Command {
-  type: CommandTypesList;
+  type: CommandTypes;
   data: string;
   id: 0;
 }
@@ -43,3 +38,36 @@ export type UpdateRoomData = RoomData[];
 export interface AddUserToRoomData {
   indexRoom: number;
 }
+
+export interface ShipInfo {
+  position: {
+    x: number;
+    y: number;
+  };
+
+  direction: boolean;
+  length: number;
+  type: 'small' | 'medium' | 'large' | 'huge';
+}
+
+export interface AddShipsRequestData {
+  gameId: number;
+  ships: ShipInfo[];
+  indexPlayer: number;
+}
+
+export interface StartGameResponseData {
+  ships: ShipInfo[];
+  currentPlayerIndex: number;
+}
+
+interface PlayerInGameStorage extends PlayerInRoom {
+  ships?: ShipInfo[];
+}
+
+interface GameInStorage {
+  game: BattleShipGame;
+  players: Map<number, PlayerInGameStorage>;
+}
+
+export type GamesStorage = Map<number, GameInStorage>;

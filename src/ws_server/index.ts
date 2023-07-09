@@ -1,8 +1,9 @@
 import { WebSocketServer } from 'ws';
-import { ClientsMap, Command } from './types';
+import { ClientsMap, Command, GamesStorage } from './types';
 import { commandsMap } from './commands';
 
 export const registeredClients: ClientsMap = new Map();
+export const gamesStorage: GamesStorage = new Map();
 
 export const startWsServer = (port: number) => {
   const wsServer = new WebSocketServer({ port }, () =>

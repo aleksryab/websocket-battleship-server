@@ -1,7 +1,7 @@
-import { CommandTypesList } from '../types';
+import { CommandTypes } from '../constants';
 
 export const getStringResponse = (
-  type: CommandTypesList,
+  type: CommandTypes,
   data: unknown,
 ): string => {
   return JSON.stringify({

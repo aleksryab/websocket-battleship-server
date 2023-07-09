@@ -17,10 +17,11 @@ export const createRoom = (ws: WebSocket) => {
     roomId,
     roomUsers: [{ index, name, ws }],
   };
-
   rooms.set(roomId, newRoom);
-  const responseData: UpdateRoomData = [newRoom];
 
+  const responseData: UpdateRoomData = [
+    { roomId, roomUsers: [{ index, name }] },
+  ];
   const response = getStringResponse(CommandTypes.UpdateRoom, responseData);
   registeredClients.forEach((_, client) => client.send(response));
 };
