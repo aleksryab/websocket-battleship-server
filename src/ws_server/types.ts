@@ -3,8 +3,10 @@ import { CommandTypes } from './constants';
 import { BattleShipGame } from './BattleShipGame';
 import { PlayerInRoom } from './dataBase';
 
+export type PlayerIndex = number;
+
 interface PlayerInfo {
-  index: number;
+  index: PlayerIndex;
   name: string;
 }
 
@@ -39,12 +41,13 @@ export interface AddUserToRoomData {
   indexRoom: number;
 }
 
-export interface ShipInfo {
-  position: {
-    x: number;
-    y: number;
-  };
+export interface Coordinates {
+  x: number;
+  y: number;
+}
 
+export interface ShipInfo {
+  position: Coordinates;
   direction: boolean;
   length: number;
   type: 'small' | 'medium' | 'large' | 'huge';
@@ -53,12 +56,12 @@ export interface ShipInfo {
 export interface AddShipsRequestData {
   gameId: number;
   ships: ShipInfo[];
-  indexPlayer: number;
+  indexPlayer: PlayerIndex;
 }
 
 export interface StartGameResponseData {
   ships: ShipInfo[];
-  currentPlayerIndex: number;
+  currentPlayerIndex: PlayerIndex;
 }
 
 interface PlayerInGameStorage extends PlayerInRoom {
@@ -67,7 +70,30 @@ interface PlayerInGameStorage extends PlayerInRoom {
 
 interface GameInStorage {
   game: BattleShipGame;
-  players: Map<number, PlayerInGameStorage>;
+  players: Map<PlayerIndex, PlayerInGameStorage>;
 }
 
-export type GamesStorage = Map<number, GameInStorage>;
+export type GamesStorage = Map<PlayerIndex, GameInStorage>;
+
+export interface TurnResponseData {
+  currentPlayer: PlayerIndex;
+}
+
+export interface AttackRequestData {
+  gameId: number;
+  x: number;
+  y: number;
+  indexPlayer: PlayerIndex;
+}
+
+export enum AttackStatus {
+  miss = 'miss',
+  killed = 'killed',
+  shot = 'shot',
+}
+
+export interface AttackResult {
+  position: Coordinates;
+  currentPlayer: PlayerIndex;
+  status: AttackStatus;
+}

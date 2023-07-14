@@ -17,17 +17,21 @@ export const addShips = (data: string) => {
   game.addShips(indexPlayer, ships);
 
   if (game.isGameReady()) {
-    players.forEach((it) => {
-      const { index, ships } = it;
-      if (!ships) return;
+    players.forEach((player) => {
+      if (!player.ships) return;
 
       const responseData: StartGameResponseData = {
-        currentPlayerIndex: index,
-        ships,
+        currentPlayerIndex: player.index,
+        ships: player.ships,
       };
 
       const response = getStringResponse(CommandTypes.StartGame, responseData);
-      it.ws.send(response);
+      player.ws.send(response);
+      const currentPlayer = game.whoseTurn();
+      const turnResponse = getStringResponse(CommandTypes.Turn, {
+        currentPlayer,
+      });
+      player.ws.send(turnResponse);
     });
   }
 };
