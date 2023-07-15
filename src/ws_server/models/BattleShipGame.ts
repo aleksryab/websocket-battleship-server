@@ -1,5 +1,5 @@
-import { AttackResult, Coordinates, PlayerIndex, ShipInfo } from './types';
-import { AttackStatus } from './constants';
+import { AttackResult, Coordinates, PlayerIndex, ShipInfo } from '../types';
+import { AttackStatus } from '../constants';
 
 const PLAYERS_NUMBER = 2;
 

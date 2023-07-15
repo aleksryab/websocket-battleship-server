@@ -1,8 +1,8 @@
 import { WebSocket } from 'ws';
-import { CommandTypes } from '../constants';
-import { UpdateRoomData } from '../types';
-import { getStringResponse } from './utils';
-import { registeredClients, roomsStorage } from '..';
+import { registeredClients, roomsStorage } from '../..';
+import { CommandTypes } from '../../constants';
+import { UpdateRoomData } from '../../types';
+import { getStringResponse } from '../utils';
 
 export const updateRoom = (ws?: WebSocket) => {
   const responseData: UpdateRoomData = [...roomsStorage.values()].map(

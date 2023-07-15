@@ -1,7 +1,7 @@
-import { AddShipsRequestData, StartGameResponseData } from '../types';
-import { gamesStorage } from '..';
-import { getStringResponse } from './utils';
-import { CommandTypes } from '../constants';
+import { gamesStorage } from '../..';
+import { AddShipsRequestData, StartGameResponseData } from '../../types';
+import { CommandTypes } from '../../constants';
+import { getStringResponse } from '../utils';
 
 export const addShips = (data: string) => {
   const { gameId, ships, indexPlayer }: AddShipsRequestData = JSON.parse(data);

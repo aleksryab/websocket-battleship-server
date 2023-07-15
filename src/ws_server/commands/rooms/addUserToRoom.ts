@@ -1,9 +1,9 @@
 import { WebSocket } from 'ws';
-import { CommandTypes } from '../constants';
-import { AddUserToRoomData } from '../types';
-import { getStringResponse } from './utils';
-import { gamesStorage, registeredClients, roomsStorage } from '..';
-import { BattleShipGame } from '../BattleShipGame';
+import { gamesStorage, registeredClients, roomsStorage } from '../..';
+import { CommandTypes } from '../../constants';
+import { AddUserToRoomData } from '../../types';
+import { BattleShipGame } from '../../models/BattleShipGame';
+import { getStringResponse } from '../utils';
 import { updateRoom } from './updateRoom';
 
 export const addUserToRoom = (ws: WebSocket, data: string) => {

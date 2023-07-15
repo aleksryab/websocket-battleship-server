@@ -1,11 +1,11 @@
-import { dataBase } from '../dataBase';
-import { getStringResponse } from './utils';
-import { CommandTypes } from '../constants';
-import { registeredClients } from '..';
 import { WebSocket } from 'ws';
+import { registeredClients } from '../..';
+import { db } from '../../models/dataBase';
+import { CommandTypes } from '../../constants';
+import { getStringResponse } from '../utils';
 
 export const updateWinners = (ws?: WebSocket) => {
-  const responseData = dataBase.winners;
+  const responseData = db.winners;
   const response = getStringResponse(CommandTypes.UpdateWinners, responseData);
 
   if (ws) {

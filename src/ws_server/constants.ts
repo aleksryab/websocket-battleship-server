@@ -1,5 +1,5 @@
-export const PLAYER_NAME_LENGTH = 5;
-export const PASSWORD_LENGTH = 5;
+export const PLAYER_NAME_MIN_LENGTH = 5;
+export const PASSWORD_MIN_LENGTH = 5;
 
 export enum CommandTypes {
   Reg = 'reg',

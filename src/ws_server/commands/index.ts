@@ -1,10 +1,10 @@
-import { regPlayer } from './regPlayer';
-import { createRoom } from './createRoom';
-import { addUserToRoom } from './addUserToRoom';
 import { WebSocket } from 'ws';
 import { CommandTypes } from '../constants';
-import { addShips } from './addShips';
-import { attack } from './attack';
+import { regPlayer } from './players/regPlayer';
+import { createRoom } from './rooms/createRoom';
+import { addUserToRoom } from './rooms/addUserToRoom';
+import { addShips } from './games/addShips';
+import { attack } from './games/attack';
 
 type CommandMap = Map<CommandTypes, (ws: WebSocket, data: string) => void>;
 

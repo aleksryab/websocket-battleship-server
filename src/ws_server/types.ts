@@ -1,6 +1,6 @@
 import { WebSocket } from 'ws';
 import { AttackStatus, CommandTypes } from './constants';
-import { BattleShipGame } from './BattleShipGame';
+import { BattleShipGame } from './models/BattleShipGame';
 
 export type PlayerIndex = number;
 export type RoomId = number;

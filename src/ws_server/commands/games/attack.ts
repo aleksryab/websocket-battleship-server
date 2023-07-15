@@ -1,9 +1,9 @@
-import { gamesStorage } from '..';
-import { getStringResponse } from './utils';
-import { CommandTypes } from '../constants';
-import { AttackRequestData, AttackResult } from '../types';
-import { updateWinners } from './updateWinners';
-import { dataBase } from '../dataBase';
+import { gamesStorage } from '../..';
+import { CommandTypes } from '../../constants';
+import { AttackRequestData, AttackResult } from '../../types';
+import { db } from '../../models/dataBase';
+import { updateWinners } from '../players/updateWinners';
+import { getStringResponse } from '../utils';
 
 export const attack = (data: string) => {
   const { gameId, x, y, indexPlayer }: AttackRequestData = JSON.parse(data);
@@ -35,20 +35,7 @@ export const attack = (data: string) => {
     winPlayer: indexPlayer,
   });
 
-  const winnerInDataBase = dataBase.winners.find(
-    (winner) => winner.index === indexPlayer,
-  );
-
-  if (winnerInDataBase) {
-    winnerInDataBase.wins += 1;
-  } else {
-    const player = dataBase.players.find(
-      (player) => player.index === indexPlayer,
-    );
-    if (!player) return;
-    dataBase.winners.push({ index: indexPlayer, name: player.name, wins: 1 });
-  }
-
   players.forEach((player) => player.ws.send(finishResponse));
+  db.updateWinner(indexPlayer);
   updateWinners();
 };

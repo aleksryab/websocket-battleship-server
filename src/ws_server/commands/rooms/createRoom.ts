@@ -1,6 +1,6 @@
 import { WebSocket } from 'ws';
-import { registeredClients, roomsStorage } from '..';
-import { Room } from '../types';
+import { registeredClients, roomsStorage } from '../..';
+import { Room } from '../../types';
 import { updateRoom } from './updateRoom';
 
 export const createRoom = (ws: WebSocket) => {
