@@ -24,6 +24,7 @@ interface PlayerState {
 }
 
 type PlayersState = Map<PlayerIndex, PlayerState>;
+type AttackTarget = Coordinates | null;
 
 export class BattleShipGame {
   gameId: number;
@@ -48,19 +49,21 @@ export class BattleShipGame {
     return this.playersState.size === PLAYERS_NUMBER;
   }
 
-  attack(currentPlayer: PlayerIndex, x: number, y: number) {
+  attack(currentPlayer: PlayerIndex, target: AttackTarget) {
     if (currentPlayer !== this.whoseTurn()) return;
 
     const enemyState = this.getEnemyState();
     if (!enemyState) return;
     const enemyField = enemyState.field;
 
-    const targetCell = this.getCell(enemyField, x, y);
+    const targetCell = target
+      ? this.getCell(enemyField, target.x, target.y)
+      : this.getRandomTarget(enemyField);
     if (!targetCell || targetCell.isAttacked) return;
 
     const attackResults: AttackResult[] = [];
     const targetResult: AttackResult = {
-      position: { x, y },
+      position: { x: targetCell.position.x, y: targetCell.position.y },
       currentPlayer,
       status: AttackStatus.miss,
     };
@@ -114,6 +117,17 @@ export class BattleShipGame {
   isCurrentPlayerWin() {
     const enemyState = this.getEnemyState();
     return enemyState?.shipsNumber === 0;
+  }
+
+  private getRandomTarget(field: GameField): CellInfo {
+    let target = null;
+
+    while (!target) {
+      const candidate = this.getCell(field, generateRandom(), generateRandom());
+      if (candidate && !candidate.isAttacked) target = candidate;
+    }
+
+    return target;
   }
 
   private getEnemyState() {
@@ -198,4 +212,8 @@ export class BattleShipGame {
       [...Array(size)].map((_, x) => ({ ...emptyCell, position: { x, y } })),
     );
   };
+}
+
+function generateRandom(min = 0, max = 9) {
+  return Math.floor(Math.random() * (max - min)) + min;
 }

@@ -13,6 +13,6 @@ export const commandsMap: CommandMap = new Map([
   [CommandTypes.CreateRoom, (ws) => createRoom(ws)],
   [CommandTypes.AddUserToRoom, (ws, data) => addUserToRoom(ws, data)],
   [CommandTypes.AddShips, (_, data) => addShips(data)],
-  [CommandTypes.Attack, (_, data) => attack('target', data)],
-  [CommandTypes.RandomAttack, (_, data) => attack('random', data)],
+  [CommandTypes.Attack, (_, data) => attack(data)],
+  [CommandTypes.RandomAttack, (_, data) => attack(data)],
 ]);

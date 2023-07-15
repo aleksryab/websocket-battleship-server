@@ -3,16 +3,15 @@ import { getStringResponse } from './utils';
 import { CommandTypes } from '../constants';
 import { AttackRequestData, AttackResult } from '../types';
 
-type AttackType = 'random' | 'target';
-
-export const attack = (type: AttackType, data: string) => {
+export const attack = (data: string) => {
   const { gameId, x, y, indexPlayer }: AttackRequestData = JSON.parse(data);
 
   const gameInfo = gamesStorage.get(gameId);
   if (!gameInfo) return;
   const { game, players } = gameInfo;
 
-  const resultsAttack = game.attack(indexPlayer, x, y);
+  const target = x === undefined || y === undefined ? null : { x, y };
+  const resultsAttack = game.attack(indexPlayer, target);
   if (!resultsAttack) return;
 
   players.forEach((player) => {

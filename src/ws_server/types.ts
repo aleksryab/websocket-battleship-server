@@ -68,7 +68,7 @@ interface PlayerInGameStorage extends PlayerInRoom {
   ships?: ShipInfo[];
 }
 
-interface GameInStorage {
+export interface GameInStorage {
   game: BattleShipGame;
   players: Map<PlayerIndex, PlayerInGameStorage>;
 }
@@ -81,8 +81,8 @@ export interface TurnResponseData {
 
 export interface AttackRequestData {
   gameId: number;
-  x: number;
-  y: number;
+  x?: number;
+  y?: number;
   indexPlayer: PlayerIndex;
 }
 
