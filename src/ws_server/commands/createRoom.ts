@@ -10,8 +10,14 @@ export const createRoom = (ws: WebSocket) => {
   const { index, name } = client;
   const roomId = Date.now();
 
+  const isCreateRoom = [...roomsStorage.values()].some(
+    (room) => room.creator === index,
+  );
+  if (isCreateRoom) return;
+
   const newRoom: Room = {
     roomId,
+    creator: index,
     roomUsers: [{ index, name, ws }],
   };
 

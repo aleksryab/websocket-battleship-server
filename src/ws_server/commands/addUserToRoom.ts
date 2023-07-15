@@ -28,6 +28,10 @@ export const addUserToRoom = (ws: WebSocket, data: string) => {
     const responseData = { idGame, idPlayer: user.index };
     const response = getStringResponse(CommandTypes.CreateGame, responseData);
     user.ws.send(response);
+
+    roomsStorage.forEach((room) => {
+      if (room.creator === user.index) roomsStorage.delete(room.roomId);
+    });
   });
 
   roomsStorage.delete(indexRoom);

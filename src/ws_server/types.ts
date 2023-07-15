@@ -4,6 +4,7 @@ import { BattleShipGame } from './BattleShipGame';
 
 export type PlayerIndex = number;
 export type RoomId = number;
+export type GameId = number;
 
 interface PlayerInfo {
   index: PlayerIndex;
@@ -28,6 +29,7 @@ export interface PlayerInRoom {
 
 export interface Room {
   roomId: RoomId;
+  creator: PlayerIndex;
   roomUsers: PlayerInRoom[];
 }
 
@@ -44,14 +46,14 @@ export interface PlayerResponseData {
 }
 
 interface RoomData {
-  roomId: number;
+  roomId: RoomId;
   roomUsers: PlayerInfo[];
 }
 
 export type UpdateRoomData = RoomData[];
 
 export interface AddUserToRoomData {
-  indexRoom: number;
+  indexRoom: RoomId;
 }
 
 export interface Coordinates {
@@ -67,7 +69,7 @@ export interface ShipInfo {
 }
 
 export interface AddShipsRequestData {
-  gameId: number;
+  gameId: GameId;
   ships: ShipInfo[];
   indexPlayer: PlayerIndex;
 }
@@ -91,14 +93,9 @@ export interface TurnResponseData {
 }
 
 export interface AttackRequestData {
-  gameId: number;
+  gameId: GameId;
   x?: number;
   y?: number;
-  indexPlayer: PlayerIndex;
-}
-
-export interface RandomAttackRequestData {
-  gameId: number;
   indexPlayer: PlayerIndex;
 }
 
