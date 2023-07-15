@@ -3,25 +3,34 @@ import { getStringResponse } from './utils';
 import { CommandTypes } from '../constants';
 import { AttackRequestData, AttackResult } from '../types';
 
-export const attack = (data: string) => {
+type AttackType = 'random' | 'target';
+
+export const attack = (type: AttackType, data: string) => {
   const { gameId, x, y, indexPlayer }: AttackRequestData = JSON.parse(data);
 
   const gameInfo = gamesStorage.get(gameId);
   if (!gameInfo) return;
+  const { game, players } = gameInfo;
 
-  const resultsAttack = gameInfo.game.attack(indexPlayer, x, y);
+  const resultsAttack = game.attack(indexPlayer, x, y);
   if (!resultsAttack) return;
 
-  gameInfo.players.forEach((player) => {
+  players.forEach((player) => {
     resultsAttack.forEach((result: AttackResult) => {
       const response = getStringResponse(CommandTypes.Attack, result);
       player.ws.send(response);
 
       const turnResponse = getStringResponse(CommandTypes.Turn, {
-        currentPlayer: gameInfo.game.whoseTurn(),
+        currentPlayer: game.whoseTurn(),
       });
 
       player.ws.send(turnResponse);
     });
   });
+
+  if (!game.isCurrentPlayerWin()) return;
+  const finishResponse = getStringResponse(CommandTypes.Finish, {
+    winPlayer: indexPlayer,
+  });
+  players.forEach((player) => player.ws.send(finishResponse));
 };

@@ -1,10 +1,5 @@
-import {
-  AttackResult,
-  AttackStatus,
-  Coordinates,
-  PlayerIndex,
-  ShipInfo,
-} from './types';
+import { AttackResult, Coordinates, PlayerIndex, ShipInfo } from './types';
+import { AttackStatus } from './constants';
 
 const PLAYERS_NUMBER = 2;
 
@@ -21,38 +16,44 @@ interface CellInfo {
   ship: ShipInfo | null;
 }
 
-type PlayersFieldState = Map<PlayerIndex, CellInfo[][]>;
+type GameField = CellInfo[][];
+
+interface PlayerState {
+  field: GameField;
+  shipsNumber: number;
+}
+
+type PlayersState = Map<PlayerIndex, PlayerState>;
 
 export class BattleShipGame {
   gameId: number;
   fieldSize: number;
   private gameQueue: PlayerIndex[];
-  private playersFields: PlayersFieldState;
+  private playersState: PlayersState;
 
   constructor(id: number, fieldSize: number) {
     this.gameId = id;
     this.fieldSize = fieldSize;
-    this.playersFields = new Map();
+    this.playersState = new Map();
     this.gameQueue = [];
   }
 
   addShips(indexPlayer: PlayerIndex, ships: ShipInfo[]) {
     const field = this.createField(ships);
-    this.playersFields.set(indexPlayer, field);
+    this.playersState.set(indexPlayer, { field, shipsNumber: ships.length });
     this.gameQueue.push(indexPlayer);
   }
 
   isGameReady() {
-    return this.playersFields.size === PLAYERS_NUMBER;
+    return this.playersState.size === PLAYERS_NUMBER;
   }
 
   attack(currentPlayer: PlayerIndex, x: number, y: number) {
     if (currentPlayer !== this.whoseTurn()) return;
-    const enemyFieldIndex = this.gameQueue[1];
-    if (enemyFieldIndex === undefined) return;
 
-    const enemyField = this.playersFields.get(enemyFieldIndex);
-    if (!enemyField) return;
+    const enemyState = this.getEnemyState();
+    if (!enemyState) return;
+    const enemyField = enemyState.field;
 
     const targetCell = this.getCell(enemyField, x, y);
     if (!targetCell || targetCell.isAttacked) return;
@@ -81,6 +82,8 @@ export class BattleShipGame {
       targetResult.status = isKilled ? AttackStatus.killed : AttackStatus.shot;
 
       if (isKilled) {
+        enemyState.shipsNumber -= 1;
+
         shipCells.forEach((cell) => {
           attackResults.push({
             position: { x: cell.position.x, y: cell.position.y },
@@ -108,7 +111,18 @@ export class BattleShipGame {
     return this.gameQueue[0];
   }
 
-  private getAdjacentEmptyCells(field: CellInfo[][], shipCells: CellInfo[]) {
+  isCurrentPlayerWin() {
+    const enemyState = this.getEnemyState();
+    return enemyState?.shipsNumber === 0;
+  }
+
+  private getEnemyState() {
+    const enemyIndex = this.gameQueue[1];
+    if (enemyIndex === undefined) return;
+    return this.playersState.get(enemyIndex);
+  }
+
+  private getAdjacentEmptyCells(field: GameField, shipCells: CellInfo[]) {
     const cells: Coordinates[] = [];
 
     shipCells.forEach((cell) => {
@@ -136,7 +150,7 @@ export class BattleShipGame {
     return cells;
   }
 
-  private getShipCells(field: CellInfo[][], ship: ShipInfo) {
+  private getShipCells(field: GameField, ship: ShipInfo) {
     const cells = [];
     const { position, direction, length } = ship;
 
@@ -164,7 +178,7 @@ export class BattleShipGame {
     return field;
   }
 
-  private getCell(field: CellInfo[][], x: number, y: number): CellInfo | null {
+  private getCell(field: GameField, x: number, y: number): CellInfo | null {
     const row = field[y];
     if (!row) return null;
     const cell = row[x];
@@ -172,7 +186,7 @@ export class BattleShipGame {
     return cell;
   }
 
-  private getEmptyField = (size: number): CellInfo[][] => {
+  private getEmptyField = (size: number): GameField => {
     const emptyCell: CellInfo = {
       isAttacked: false,
       status: CellStatus.Empty,
@@ -181,9 +195,7 @@ export class BattleShipGame {
     };
 
     return [...Array(size)].map((_, y) =>
-      Array(size)
-        .fill(null)
-        .map((_, x) => ({ ...emptyCell, position: { x, y } })),
+      [...Array(size)].map((_, x) => ({ ...emptyCell, position: { x, y } })),
     );
   };
 }

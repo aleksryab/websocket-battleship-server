@@ -20,3 +20,9 @@ export enum ErrorMessages {
   InvalidName = 'Player name must be a string of at least 5 characters',
   AuthError = `Player name and password don't match`,
 }
+
+export enum AttackStatus {
+  miss = 'miss',
+  killed = 'killed',
+  shot = 'shot',
+}

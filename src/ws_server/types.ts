@@ -1,5 +1,5 @@
 import { WebSocket } from 'ws';
-import { CommandTypes } from './constants';
+import { AttackStatus, CommandTypes } from './constants';
 import { BattleShipGame } from './BattleShipGame';
 import { PlayerInRoom } from './dataBase';
 
@@ -86,10 +86,9 @@ export interface AttackRequestData {
   indexPlayer: PlayerIndex;
 }
 
-export enum AttackStatus {
-  miss = 'miss',
-  killed = 'killed',
-  shot = 'shot',
+export interface RandomAttackRequestData {
+  gameId: number;
+  indexPlayer: PlayerIndex;
 }
 
 export interface AttackResult {
