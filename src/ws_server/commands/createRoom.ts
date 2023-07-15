@@ -1,12 +1,9 @@
 import { WebSocket } from 'ws';
-import { registeredClients } from '..';
-import { CommandTypes } from '../constants';
-import { Room, dataBase } from '../dataBase';
-import { UpdateRoomData } from '../types';
-import { getStringResponse } from './utils';
+import { registeredClients, roomsStorage } from '..';
+import { Room } from '../types';
+import { updateRoom } from './updateRoom';
 
 export const createRoom = (ws: WebSocket) => {
-  const { rooms } = dataBase;
   const client = registeredClients.get(ws);
   if (!client) return;
 
@@ -17,11 +14,7 @@ export const createRoom = (ws: WebSocket) => {
     roomId,
     roomUsers: [{ index, name, ws }],
   };
-  rooms.set(roomId, newRoom);
 
-  const responseData: UpdateRoomData = [
-    { roomId, roomUsers: [{ index, name }] },
-  ];
-  const response = getStringResponse(CommandTypes.UpdateRoom, responseData);
-  registeredClients.forEach((_, client) => client.send(response));
+  roomsStorage.set(roomId, newRoom);
+  updateRoom();
 };

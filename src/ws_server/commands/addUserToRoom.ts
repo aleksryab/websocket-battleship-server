@@ -1,14 +1,14 @@
 import { WebSocket } from 'ws';
 import { CommandTypes } from '../constants';
-import { dataBase } from '../dataBase';
 import { AddUserToRoomData } from '../types';
 import { getStringResponse } from './utils';
-import { gamesStorage, registeredClients } from '..';
+import { gamesStorage, registeredClients, roomsStorage } from '..';
 import { BattleShipGame } from '../BattleShipGame';
+import { updateRoom } from './updateRoom';
 
 export const addUserToRoom = (ws: WebSocket, data: string) => {
   const { indexRoom } = JSON.parse(data) as AddUserToRoomData;
-  const room = dataBase.rooms.get(indexRoom);
+  const room = roomsStorage.get(indexRoom);
 
   const client = registeredClients.get(ws);
   if (!client || !room) return;
@@ -24,9 +24,12 @@ export const addUserToRoom = (ws: WebSocket, data: string) => {
   const players = new Map(room.roomUsers.map((user) => [user.index, user]));
   gamesStorage.set(idGame, { game: newGame, players });
 
-  room?.roomUsers.forEach((user) => {
+  room.roomUsers.forEach((user) => {
     const responseData = { idGame, idPlayer: user.index };
     const response = getStringResponse(CommandTypes.CreateGame, responseData);
     user.ws.send(response);
   });
+
+  roomsStorage.delete(indexRoom);
+  updateRoom();
 };

@@ -1,28 +1,23 @@
-import { WebSocket } from 'ws';
+import { PlayerIndex } from './types';
 
 export interface Player {
-  index: number;
+  index: PlayerIndex;
   name: string;
   password: string;
 }
 
-export interface PlayerInRoom {
-  index: number;
+export interface Winner {
+  index: PlayerIndex;
   name: string;
-  ws: WebSocket;
-}
-
-export interface Room {
-  roomId: number;
-  roomUsers: PlayerInRoom[];
+  wins: number;
 }
 
 export interface DataBase {
   players: Player[];
-  rooms: Map<number, Room>;
+  winners: Winner[];
 }
 
 export const dataBase: DataBase = {
   players: [],
-  rooms: new Map(),
+  winners: [],
 };

@@ -4,6 +4,8 @@ import { CommandTypes, ErrorMessages, PLAYER_NAME_LENGTH } from '../constants';
 import { getStringResponse } from './utils';
 import { registeredClients } from '..';
 import { WebSocket } from 'ws';
+import { updateWinners } from './updateWinners';
+import { updateRoom } from './updateRoom';
 
 const isNameValid = (name: unknown) => {
   return typeof name === 'string' && name.length >= PLAYER_NAME_LENGTH;
@@ -49,4 +51,6 @@ export const regPlayer = (ws: WebSocket, data: string) => {
 
   const response = getStringResponse(CommandTypes.Reg, responseData);
   ws.send(response);
+  updateRoom(ws);
+  updateWinners(ws);
 };

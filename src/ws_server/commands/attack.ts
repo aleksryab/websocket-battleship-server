@@ -2,6 +2,8 @@ import { gamesStorage } from '..';
 import { getStringResponse } from './utils';
 import { CommandTypes } from '../constants';
 import { AttackRequestData, AttackResult } from '../types';
+import { updateWinners } from './updateWinners';
+import { dataBase } from '../dataBase';
 
 export const attack = (data: string) => {
   const { gameId, x, y, indexPlayer }: AttackRequestData = JSON.parse(data);
@@ -28,8 +30,25 @@ export const attack = (data: string) => {
   });
 
   if (!game.isCurrentPlayerWin()) return;
+
   const finishResponse = getStringResponse(CommandTypes.Finish, {
     winPlayer: indexPlayer,
   });
+
+  const winnerInDataBase = dataBase.winners.find(
+    (winner) => winner.index === indexPlayer,
+  );
+
+  if (winnerInDataBase) {
+    winnerInDataBase.wins += 1;
+  } else {
+    const player = dataBase.players.find(
+      (player) => player.index === indexPlayer,
+    );
+    if (!player) return;
+    dataBase.winners.push({ index: indexPlayer, name: player.name, wins: 1 });
+  }
+
   players.forEach((player) => player.ws.send(finishResponse));
+  updateWinners();
 };

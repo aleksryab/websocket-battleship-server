@@ -1,9 +1,9 @@
 import { WebSocket } from 'ws';
 import { AttackStatus, CommandTypes } from './constants';
 import { BattleShipGame } from './BattleShipGame';
-import { PlayerInRoom } from './dataBase';
 
 export type PlayerIndex = number;
+export type RoomId = number;
 
 interface PlayerInfo {
   index: PlayerIndex;
@@ -11,11 +11,24 @@ interface PlayerInfo {
 }
 
 export type ClientsMap = Map<WebSocket, PlayerInfo>;
+export type RoomsMap = Map<RoomId, Room>;
+export type GamesStorage = Map<PlayerIndex, GameInStorage>;
 
 export interface Command {
   type: CommandTypes;
   data: string;
   id: 0;
+}
+
+export interface PlayerInRoom {
+  index: PlayerIndex;
+  name: string;
+  ws: WebSocket;
+}
+
+export interface Room {
+  roomId: RoomId;
+  roomUsers: PlayerInRoom[];
 }
 
 export interface PlayerRequestData {
@@ -25,7 +38,7 @@ export interface PlayerRequestData {
 
 export interface PlayerResponseData {
   name: string;
-  index: number;
+  index: PlayerIndex;
   error: boolean;
   errorText: string;
 }
@@ -72,8 +85,6 @@ export interface GameInStorage {
   game: BattleShipGame;
   players: Map<PlayerIndex, PlayerInGameStorage>;
 }
-
-export type GamesStorage = Map<PlayerIndex, GameInStorage>;
 
 export interface TurnResponseData {
   currentPlayer: PlayerIndex;
