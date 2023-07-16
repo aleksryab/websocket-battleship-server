@@ -38,4 +38,5 @@ export const attack = (data: string) => {
   players.forEach((player) => player.ws.send(finishResponse));
   db.updateWinner(indexPlayer);
   updateWinners();
+  gamesStorage.delete(gameId);
 };

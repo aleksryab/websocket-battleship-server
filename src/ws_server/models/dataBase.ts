@@ -1,12 +1,12 @@
 import { PlayerIndex } from '../types';
 
-export interface Player {
+interface Player {
   index: PlayerIndex;
   name: string;
   password: string;
 }
 
-export interface Winner {
+interface Winner {
   index: PlayerIndex;
   name: string;
   wins: number;
