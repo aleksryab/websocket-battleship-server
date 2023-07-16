@@ -1,5 +1,7 @@
 export const PLAYER_NAME_MIN_LENGTH = 5;
 export const PASSWORD_MIN_LENGTH = 5;
+export const GAME_FIELD_SIZE = 10;
+export const BOT_ID = 'bot';
 
 export enum CommandTypes {
   Reg = 'reg',
@@ -14,6 +16,7 @@ export enum CommandTypes {
   Finish = 'finish',
   UpdateRoom = 'update_room',
   UpdateWinners = 'update_winners',
+  SinglePlay = 'single_play',
 }
 
 export enum ErrorMessages {

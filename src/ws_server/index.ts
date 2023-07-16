@@ -1,6 +1,6 @@
 import { WebSocketServer } from 'ws';
 import { ClientsMap, Command, GamesStorage, RoomsMap } from './types';
-import { commandsMap } from './commands';
+import { commandsMap } from './controllers';
 
 export const registeredClients: ClientsMap = new Map();
 export const roomsStorage: RoomsMap = new Map();

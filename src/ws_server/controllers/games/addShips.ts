@@ -2,6 +2,8 @@ import { gamesStorage } from '../..';
 import { AddShipsRequestData, StartGameResponseData } from '../../types';
 import { CommandTypes } from '../../constants';
 import { getStringResponse } from '../utils';
+import { GameBot } from '../../models/GameBot';
+import { turnBroadcast } from './broadcasters';
 
 export const addShips = (data: string) => {
   const { gameId, ships, indexPlayer }: AddShipsRequestData = JSON.parse(data);
@@ -10,15 +12,15 @@ export const addShips = (data: string) => {
   if (!gameInfo) return;
 
   const { game, players } = gameInfo;
-  const currentPlayer = players.get(indexPlayer);
-  if (!currentPlayer) return;
+  const activePlayer = players.get(indexPlayer);
+  if (!activePlayer || activePlayer instanceof GameBot) return;
 
-  currentPlayer.ships = ships;
+  activePlayer.ships = ships;
   game.addShips(indexPlayer, ships);
 
   if (game.isGameReady()) {
     players.forEach((player) => {
-      if (!player.ships) return;
+      if (player instanceof GameBot || !player.ships) return;
 
       const responseData: StartGameResponseData = {
         currentPlayerIndex: player.index,
@@ -27,11 +29,9 @@ export const addShips = (data: string) => {
 
       const response = getStringResponse(CommandTypes.StartGame, responseData);
       player.ws.send(response);
+
       const currentPlayer = game.whoseTurn();
-      const turnResponse = getStringResponse(CommandTypes.Turn, {
-        currentPlayer,
-      });
-      player.ws.send(turnResponse);
+      turnBroadcast(player.ws, currentPlayer);
     });
   }
 };

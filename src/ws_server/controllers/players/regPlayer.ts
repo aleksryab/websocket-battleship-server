@@ -1,7 +1,7 @@
 import { WebSocket } from 'ws';
 import { registeredClients } from '../..';
 import { PlayerRequestData, PlayerResponseData } from '../../types';
-import { db } from '../../models/dataBase';
+import { db } from '../../models/DataBase';
 import {
   CommandTypes,
   ErrorMessages,

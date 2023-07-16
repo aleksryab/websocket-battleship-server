@@ -1,10 +1,13 @@
 import { WebSocket } from 'ws';
 import { AttackStatus, CommandTypes } from './constants';
 import { BattleShipGame } from './models/BattleShipGame';
+import { GameBot } from './models/GameBot';
 
 export type PlayerIndex = number;
 export type RoomId = number;
 export type GameId = number;
+export type BotId = 'bot';
+export type PlayerId = PlayerIndex | BotId;
 
 interface PlayerInfo {
   index: PlayerIndex;
@@ -85,7 +88,7 @@ interface PlayerInGameStorage extends PlayerInRoom {
 
 export interface GameInStorage {
   game: BattleShipGame;
-  players: Map<PlayerIndex, PlayerInGameStorage>;
+  players: Map<PlayerIndex | BotId, PlayerInGameStorage | GameBot>;
 }
 
 export interface TurnResponseData {
@@ -101,6 +104,6 @@ export interface AttackRequestData {
 
 export interface AttackResult {
   position: Coordinates;
-  currentPlayer: PlayerIndex;
+  currentPlayer: PlayerIndex | BotId;
   status: AttackStatus;
 }

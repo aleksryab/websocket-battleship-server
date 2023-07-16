@@ -49,8 +49,8 @@ export class DataBase {
       const player = this.players.find(
         (player) => player.index === winnerIndex,
       );
-      if (!player) return;
 
+      if (!player) return;
       this.winners.push({ index: winnerIndex, name: player.name, wins: 1 });
     }
   }

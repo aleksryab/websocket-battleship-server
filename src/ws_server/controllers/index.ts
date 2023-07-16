@@ -5,6 +5,7 @@ import { createRoom } from './rooms/createRoom';
 import { addUserToRoom } from './rooms/addUserToRoom';
 import { addShips } from './games/addShips';
 import { attack } from './games/attack';
+import { singlePlay } from './games/singlePlay';
 
 type CommandMap = Map<CommandTypes, (ws: WebSocket, data: string) => void>;
 
@@ -15,4 +16,5 @@ export const commandsMap: CommandMap = new Map([
   [CommandTypes.AddShips, (_, data) => addShips(data)],
   [CommandTypes.Attack, (_, data) => attack(data)],
   [CommandTypes.RandomAttack, (_, data) => attack(data)],
+  [CommandTypes.SinglePlay, (ws) => singlePlay(ws)],
 ]);

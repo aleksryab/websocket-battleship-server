@@ -1,6 +1,6 @@
 import { WebSocket } from 'ws';
 import { registeredClients } from '../..';
-import { db } from '../../models/dataBase';
+import { db } from '../../models/DataBase';
 import { CommandTypes } from '../../constants';
 import { getStringResponse } from '../utils';
 

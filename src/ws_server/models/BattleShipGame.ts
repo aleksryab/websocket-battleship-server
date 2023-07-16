@@ -1,5 +1,12 @@
-import { AttackResult, Coordinates, PlayerIndex, ShipInfo } from '../types';
+import {
+  AttackResult,
+  Coordinates,
+  GameId,
+  PlayerId,
+  ShipInfo,
+} from '../types';
 import { AttackStatus } from '../constants';
+import { generateRandom, getCellFromField } from './utils';
 
 const PLAYERS_NUMBER = 2;
 
@@ -23,13 +30,13 @@ interface PlayerState {
   shipsNumber: number;
 }
 
-type PlayersState = Map<PlayerIndex, PlayerState>;
+type PlayersState = Map<PlayerId, PlayerState>;
 type AttackTarget = Coordinates | null;
 
 export class BattleShipGame {
-  gameId: number;
+  gameId: GameId;
   fieldSize: number;
-  private gameQueue: PlayerIndex[];
+  private gameQueue: PlayerId[];
   private playersState: PlayersState;
 
   constructor(id: number, fieldSize: number) {
@@ -39,17 +46,20 @@ export class BattleShipGame {
     this.gameQueue = [];
   }
 
-  addShips(indexPlayer: PlayerIndex, ships: ShipInfo[]) {
+  addPlayer(indexPlayer: PlayerId) {
+    this.gameQueue.push(indexPlayer);
+  }
+
+  addShips(indexPlayer: PlayerId, ships: ShipInfo[]) {
     const field = this.createField(ships);
     this.playersState.set(indexPlayer, { field, shipsNumber: ships.length });
-    this.gameQueue.push(indexPlayer);
   }
 
   isGameReady() {
     return this.playersState.size === PLAYERS_NUMBER;
   }
 
-  attack(currentPlayer: PlayerIndex, target: AttackTarget) {
+  attack(currentPlayer: PlayerId, target: AttackTarget) {
     if (currentPlayer !== this.whoseTurn()) return;
 
     const enemyState = this.getEnemyState();
@@ -57,7 +67,7 @@ export class BattleShipGame {
     const enemyField = enemyState.field;
 
     const targetCell = target
-      ? this.getCell(enemyField, target.x, target.y)
+      ? getCellFromField(enemyField, target.x, target.y)
       : this.getRandomTarget(enemyField);
     if (!targetCell || targetCell.isAttacked) return;
 
@@ -123,7 +133,11 @@ export class BattleShipGame {
     let target = null;
 
     while (!target) {
-      const candidate = this.getCell(field, generateRandom(), generateRandom());
+      const candidate = getCellFromField(
+        field,
+        generateRandom(),
+        generateRandom(),
+      );
       if (candidate && !candidate.isAttacked) target = candidate;
     }
 
@@ -153,7 +167,7 @@ export class BattleShipGame {
       ];
 
       adjacentCoordinates.forEach(({ emptyX, emptyY }) => {
-        const cell = this.getCell(field, emptyX, emptyY);
+        const cell = getCellFromField(field, emptyX, emptyY);
         if (cell && cell.status === CellStatus.Empty) {
           cell.isAttacked = true;
           cells.push({ x: emptyX, y: emptyY });
@@ -172,7 +186,7 @@ export class BattleShipGame {
       const shipY = direction ? position.y + i : position.y;
       const shipX = direction ? position.x : position.x + i;
 
-      const cell = this.getCell(field, shipX, shipY);
+      const cell = getCellFromField(field, shipX, shipY);
       if (cell) cells.push(cell);
     }
 
@@ -192,14 +206,6 @@ export class BattleShipGame {
     return field;
   }
 
-  private getCell(field: GameField, x: number, y: number): CellInfo | null {
-    const row = field[y];
-    if (!row) return null;
-    const cell = row[x];
-    if (cell === undefined) return null;
-    return cell;
-  }
-
   private getEmptyField = (size: number): GameField => {
     const emptyCell: CellInfo = {
       isAttacked: false,
@@ -212,8 +218,4 @@ export class BattleShipGame {
       [...Array(size)].map((_, x) => ({ ...emptyCell, position: { x, y } })),
     );
   };
-}
-
-function generateRandom(min = 0, max = 9) {
-  return Math.floor(Math.random() * (max - min)) + min;
 }
