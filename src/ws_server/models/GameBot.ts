@@ -2,11 +2,14 @@ import { WebSocket } from 'ws';
 import { AttackStatus, BOT_ID } from '../constants';
 import { AttackResult, Coordinates, ShipInfo } from '../types';
 import { BattleShipGame } from './BattleShipGame';
-
 import { resultAttackBroadcast } from '../controllers/games/broadcasters';
 import {
+  Directions,
   getAdjacentPositions,
   getCellFromField,
+  getDirections,
+  getNewPosition,
+  getOppositeDirection,
   getRandomCellFromField,
   shuffleArray,
 } from './utils';
@@ -27,16 +30,11 @@ interface CellInfo {
 
 type Field = CellInfo[][];
 
-enum Directions {
-  Up,
-  Down,
-  Left,
-  Right,
-}
-
-interface LastHit {
-  position: Coordinates;
+interface AttackHistory {
+  firstTarget: Coordinates;
+  lastTarget?: Coordinates | null;
   direction?: Directions;
+  isLastHit?: boolean;
 }
 
 type ShipType = ShipInfo['type'];
@@ -53,33 +51,24 @@ const shipsSchema: ShipSchema[] = [
   { type: 'small', length: 1, quantity: 4 },
 ];
 
-const directionsMap = new Map<
-  Directions,
-  (position: Coordinates) => Coordinates
->([
-  [Directions.Up, ({ x, y }) => ({ x, y: y - 1 })],
-  [Directions.Down, ({ x, y }) => ({ x, y: y + 1 })],
-  [Directions.Left, ({ x, y }) => ({ x: x - 1, y })],
-  [Directions.Right, ({ x, y }) => ({ x: x + 1, y })],
-]);
-
 export class GameBot {
   private game: BattleShipGame;
   private playerClient: WebSocket;
   private enemyField: Field;
-  private lastHit: LastHit | null;
+  private attackLine: Coordinates[];
+  private attackHistory: AttackHistory | null;
 
   constructor(game: BattleShipGame, client: WebSocket) {
     this.game = game;
     this.playerClient = client;
     this.enemyField = this.generateField(CellStatus.Unknown);
     this.addShips();
-    this.lastHit = null;
+    this.generateAttackLine();
+    this.attackHistory = null;
   }
 
   tryMove() {
     const currentPlayer = this.game.whoseTurn();
-    console.log('Turn: ', currentPlayer);
     if (currentPlayer === BOT_ID) setTimeout(() => this.attack(), ATTACK_DELAY);
   }
 
@@ -89,7 +78,6 @@ export class GameBot {
   }
 
   private generateShips(): ShipInfo[] {
-    console.log('Generate Ships -->');
     const ships: ShipInfo[] = [];
     const field = this.generateField(false);
 
@@ -102,9 +90,9 @@ export class GameBot {
       }
     });
 
-    field.forEach((row) =>
-      console.log(row.map((it) => Number(it.status)).toString()),
-    );
+    /* If you want to see the bot's field 😉
+    field.forEach((row) => console.log(row.map((it) => Number(it.status)).toString()));
+    */
 
     return ships;
   }
@@ -156,13 +144,24 @@ export class GameBot {
     return true;
   }
 
+  private generateAttackLine() {
+    this.attackLine = [];
+    const size = this.game.fieldSize;
+
+    for (let i = 0; i < size; i++) {
+      for (let j = 0; j < size; j++) {
+        this.attackLine.push({ x: i, y: j });
+      }
+    }
+
+    shuffleArray(this.attackLine);
+  }
+
   private attack() {
-    console.log('Attack -->');
-    const target = this.lastHit
+    const target = this.attackHistory
       ? this.getSmartTarget()
       : this.getRandomTarget();
-
-    console.log('Target: ', target);
+    if (!target) return;
 
     const results = this.game.attack(BOT_ID, target);
     if (!results) return;
@@ -171,6 +170,9 @@ export class GameBot {
   }
 
   private HandleAttackResult(results: AttackResult[]) {
+    let isNextMove = false;
+    let isKilled = false;
+
     results.forEach((result) => {
       const { position, status } = result;
       const target = getCellFromField(this.enemyField, position.x, position.y);
@@ -178,63 +180,78 @@ export class GameBot {
 
       if (status === AttackStatus.miss) {
         target.status = CellStatus.Miss;
+        if (this.attackHistory) this.attackHistory.isLastHit = false;
       }
 
       if (status === AttackStatus.shot) {
+        isNextMove = true;
         target.status = CellStatus.Hit;
-        this.lastHit = { position: target.position };
-        this.tryMove();
+
+        if (this.attackHistory) {
+          this.attackHistory.lastTarget = target.position;
+        } else {
+          this.attackHistory = { firstTarget: target.position };
+        }
+        this.attackHistory.isLastHit = true;
       }
 
       if (status === AttackStatus.killed) {
+        isNextMove = true;
+        isKilled = true;
         target.status = CellStatus.Hit;
-        this.lastHit = null;
-
-        const isWin = this.game.isCurrentPlayerWin();
-        console.log('Is Win: ', isWin);
-        console.log('Position: ', target.position);
-
-        if (isWin) {
-          finishGame(this.game.gameId);
-        } else {
-          this.tryMove();
-        }
+        this.attackHistory = null;
       }
     });
+
+    if (isKilled) {
+      const isWin = this.game.isCurrentPlayerWin();
+      if (isWin) {
+        finishGame(this.game.gameId);
+      } else {
+        this.tryMove();
+      }
+    } else if (isNextMove) {
+      this.tryMove();
+    }
   }
 
   private getSmartTarget() {
-    if (!this.lastHit) return this.getRandomTarget();
+    if (!this.attackHistory) return this.getRandomTarget();
+    const directions = getDirections();
     let target = null;
 
-    const directions = [
-      Directions.Up,
-      Directions.Down,
-      Directions.Left,
-      Directions.Right,
-    ];
+    const prevDirection = this.attackHistory?.direction;
+    let prevTarget =
+      this.attackHistory.lastTarget || this.attackHistory.firstTarget;
+    let smartDirection = null;
 
-    shuffleArray(directions);
-
-    console.log(directions);
+    if (prevDirection) {
+      smartDirection = this.attackHistory.isLastHit
+        ? prevDirection
+        : getOppositeDirection(prevDirection);
+    }
 
     while (!target && directions.length) {
-      const direction = directions.pop();
-
+      const direction = smartDirection ? smartDirection : directions.pop();
       if (direction === undefined) return this.getRandomTarget();
-      const getPosition = directionsMap.get(direction);
-      if (!getPosition) return this.getRandomTarget();
 
-      const targePosition = getPosition(this.lastHit.position);
+      const newPosition = getNewPosition(direction, prevTarget);
       const candidate = getCellFromField(
         this.enemyField,
-        targePosition.x,
-        targePosition.y,
+        newPosition.x,
+        newPosition.y,
       );
 
       if (candidate && candidate.status === CellStatus.Unknown) {
         target = candidate;
-        this.lastHit.direction = direction;
+        this.attackHistory.direction = direction;
+      } else {
+        if (this.attackHistory.lastTarget) {
+          prevTarget = this.attackHistory.firstTarget;
+          this.attackHistory.lastTarget = null;
+        } else {
+          smartDirection = null;
+        }
       }
     }
 
@@ -245,9 +262,14 @@ export class GameBot {
     let target = null;
 
     while (!target) {
-      console.log('try');
-      const candidate = getRandomCellFromField(this.enemyField);
+      const position = this.attackLine.pop();
+      if (!position) return;
 
+      const candidate = getCellFromField(
+        this.enemyField,
+        position.x,
+        position.y,
+      );
       if (candidate && candidate.status === CellStatus.Unknown)
         target = candidate;
     }

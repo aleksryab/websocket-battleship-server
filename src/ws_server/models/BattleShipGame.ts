@@ -7,9 +7,9 @@ import {
 } from '../types';
 import { AttackStatus } from '../constants';
 import {
-  generateRandom,
   getAdjacentPositions,
   getCellFromField,
+  getRandomCellFromField,
 } from './utils';
 
 const PLAYERS_NUMBER = 2;
@@ -137,11 +137,7 @@ export class BattleShipGame {
     let target = null;
 
     while (!target) {
-      const candidate = getCellFromField(
-        field,
-        generateRandom(),
-        generateRandom(),
-      );
+      const candidate = getRandomCellFromField(field);
       if (candidate && !candidate.isAttacked) target = candidate;
     }
 
