@@ -6,7 +6,11 @@ import {
   ShipInfo,
 } from '../types';
 import { AttackStatus } from '../constants';
-import { generateRandom, getCellFromField } from './utils';
+import {
+  generateRandom,
+  getAdjacentPositions,
+  getCellFromField,
+} from './utils';
 
 const PLAYERS_NUMBER = 2;
 
@@ -154,23 +158,14 @@ export class BattleShipGame {
     const cells: Coordinates[] = [];
 
     shipCells.forEach((cell) => {
-      const { x, y } = cell.position;
-      const adjacentCoordinates = [
-        { emptyX: x + 1, emptyY: y },
-        { emptyX: x - 1, emptyY: y },
-        { emptyX: x, emptyY: y + 1 },
-        { emptyX: x, emptyY: y - 1 },
-        { emptyX: x + 1, emptyY: y + 1 },
-        { emptyX: x + 1, emptyY: y - 1 },
-        { emptyX: x - 1, emptyY: y + 1 },
-        { emptyX: x - 1, emptyY: y - 1 },
-      ];
+      const adjacentPositions = getAdjacentPositions(cell.position);
 
-      adjacentCoordinates.forEach(({ emptyX, emptyY }) => {
-        const cell = getCellFromField(field, emptyX, emptyY);
+      adjacentPositions.forEach(({ x, y }) => {
+        const cell = getCellFromField(field, x, y);
+
         if (cell && cell.status === CellStatus.Empty) {
           cell.isAttacked = true;
-          cells.push({ x: emptyX, y: emptyY });
+          cells.push({ x, y });
         }
       });
     });

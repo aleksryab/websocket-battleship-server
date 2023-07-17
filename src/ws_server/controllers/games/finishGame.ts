@@ -19,7 +19,7 @@ export const finishGame = (gameId: GameId) => {
     (player) => !(player instanceof GameBot) && player.ws.send(finishResponse),
   );
 
-  if (winPlayer && winPlayer !== BOT_ID) {
+  if (winPlayer !== undefined && winPlayer !== BOT_ID) {
     db.updateWinner(winPlayer);
     updateWinners();
   }

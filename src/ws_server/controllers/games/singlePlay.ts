@@ -21,7 +21,5 @@ export const singlePlay = (ws: WebSocket) => {
   newGame.addPlayer(BOT_ID);
 
   gamesStorage.set(idGame, { game: newGame, players });
-  bot.generateShips();
-
   createGameBroadcast(ws, idGame, index);
 };
