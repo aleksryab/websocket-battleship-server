@@ -1,8 +1,8 @@
-import { gamesStorage } from '../..';
 import { AttackRequestData } from '../../types';
 import { GameBot } from '../../models/GameBot';
 import { resultAttackBroadcast } from './broadcasters';
 import { finishGame } from './finishGame';
+import { gamesStorage } from '.';
 
 export const attack = (data: string) => {
   const { gameId, x, y, indexPlayer }: AttackRequestData = JSON.parse(data);

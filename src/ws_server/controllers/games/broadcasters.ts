@@ -1,7 +1,7 @@
 import { WebSocket } from 'ws';
 import { AttackResult, GameId, PlayerId, PlayerIndex } from '../../types';
-import { getStringResponse } from '../utils';
 import { CommandTypes } from '../../constants';
+import { getStringResponse } from '../utils';
 
 export const resultAttackBroadcast = (
   ws: WebSocket,

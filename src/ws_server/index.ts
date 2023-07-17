@@ -1,11 +1,7 @@
 import { WebSocketServer } from 'ws';
-import { ClientsMap, Command, GamesStorage, RoomsMap } from './types';
+import { Command } from './types';
 import { commandsMap } from './controllers';
-import { handleDisconnectedPlayer } from './controllers/players/handleDisconnectedPlayer';
-
-export const registeredClients: ClientsMap = new Map();
-export const roomsStorage: RoomsMap = new Map();
-export const gamesStorage: GamesStorage = new Map();
+import { handleDisconnectedPlayer } from './controllers/players';
 
 export const startWsServer = (port: number) => {
   const wsServer = new WebSocketServer({ port }, () =>
@@ -13,12 +9,9 @@ export const startWsServer = (port: number) => {
   );
 
   wsServer.on('connection', (ws) => {
-    console.log(`A client just connected`);
     ws.on('message', (message) => {
       try {
-        console.log(message.toString());
         const { type, data }: Command = JSON.parse(message.toString());
-
         const action = commandsMap.get(type);
         if (action) action(ws, data);
       } catch (err) {

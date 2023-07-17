@@ -1,6 +1,5 @@
-import { roomsStorage } from '../..';
 import { PlayerIndex } from '../../types';
-import { updateRoom } from './updateRoom';
+import { roomsStorage } from '.';
 
 export const deleteRoomWithUser = (playerIndex: PlayerIndex) => {
   roomsStorage.forEach((room) => {

@@ -1,9 +1,9 @@
-import { gamesStorage } from '../..';
 import { AddShipsRequestData, StartGameResponseData } from '../../types';
 import { CommandTypes } from '../../constants';
 import { getStringResponse } from '../utils';
 import { GameBot } from '../../models/GameBot';
 import { turnBroadcast } from './broadcasters';
+import { gamesStorage } from '.';
 
 export const addShips = (data: string) => {
   const { gameId, ships, indexPlayer }: AddShipsRequestData = JSON.parse(data);

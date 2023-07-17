@@ -1,8 +1,8 @@
 import { WebSocket } from 'ws';
-import { registeredClients } from '../..';
 import { db } from '../../models/DataBase';
 import { CommandTypes } from '../../constants';
 import { getStringResponse } from '../utils';
+import { registeredClients } from '.';
 
 export const updateWinners = (ws?: WebSocket) => {
   const responseData = db.winners;

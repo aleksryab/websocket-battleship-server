@@ -1,10 +1,11 @@
 import { WebSocket } from 'ws';
-import { registeredClients, roomsStorage } from '../..';
+import { registeredClients } from '../players';
 import { AddUserToRoomData } from '../../types';
 import { updateRoom } from './updateRoom';
-import { createGame } from '../games/createGame';
-import { createGameBroadcast } from '../games/broadcasters';
 import { deleteRoomWithUser } from './deleteRoomWithUser';
+import { createGame } from '../games';
+import { createGameBroadcast } from '../games/broadcasters';
+import { roomsStorage } from '.';
 
 export const addUserToRoom = (ws: WebSocket, data: string) => {
   const { indexRoom }: AddUserToRoomData = JSON.parse(data);

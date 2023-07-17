@@ -3,6 +3,7 @@ import { AttackStatus, BOT_ID } from '../constants';
 import { AttackResult, Coordinates, ShipInfo } from '../types';
 import { BattleShipGame } from './BattleShipGame';
 import { resultAttackBroadcast } from '../controllers/games/broadcasters';
+import { finishGame } from '../controllers/games';
 import {
   Directions,
   getAdjacentPositions,
@@ -13,9 +14,8 @@ import {
   getRandomCellFromField,
   shuffleArray,
 } from './utils';
-import { finishGame } from '../controllers/games/finishGame';
 
-const ATTACK_DELAY = 1000;
+const ATTACK_DELAY = 1250;
 
 enum CellStatus {
   Unknown,

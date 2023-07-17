@@ -43,8 +43,8 @@ export class BattleShipGame {
   private gameQueue: PlayerId[];
   private playersState: PlayersState;
 
-  constructor(id: number, fieldSize: number) {
-    this.gameId = id;
+  constructor(fieldSize: number) {
+    this.gameId = Date.now();
     this.fieldSize = fieldSize;
     this.playersState = new Map();
     this.gameQueue = [];

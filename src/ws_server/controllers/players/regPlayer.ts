@@ -1,5 +1,4 @@
 import { WebSocket } from 'ws';
-import { registeredClients } from '../..';
 import { PlayerRequestData, PlayerResponseData } from '../../types';
 import { db } from '../../models/DataBase';
 import {
@@ -8,8 +7,9 @@ import {
   PLAYER_NAME_MIN_LENGTH,
 } from '../../constants';
 import { getStringResponse } from '../utils';
-import { updateRoom } from '../rooms/updateRoom';
+import { updateRoom } from '../rooms';
 import { updateWinners } from './updateWinners';
+import { registeredClients } from '.';
 
 const isNameValid = (name: unknown) => {
   return typeof name === 'string' && name.length >= PLAYER_NAME_MIN_LENGTH;
