@@ -1,6 +1,7 @@
 import { WebSocketServer } from 'ws';
 import { ClientsMap, Command, GamesStorage, RoomsMap } from './types';
 import { commandsMap } from './controllers';
+import { handleDisconnectedPlayer } from './controllers/players/handleDisconnectedPlayer';
 
 export const registeredClients: ClientsMap = new Map();
 export const roomsStorage: RoomsMap = new Map();
@@ -26,7 +27,7 @@ export const startWsServer = (port: number) => {
     });
 
     ws.on('close', () => {
-      registeredClients.delete(ws);
+      handleDisconnectedPlayer(ws);
     });
 
     ws.on('error', console.error);

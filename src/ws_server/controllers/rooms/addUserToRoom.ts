@@ -4,6 +4,7 @@ import { AddUserToRoomData } from '../../types';
 import { updateRoom } from './updateRoom';
 import { createGame } from '../games/createGame';
 import { createGameBroadcast } from '../games/broadcasters';
+import { deleteRoomWithUser } from './deleteRoomWithUser';
 
 export const addUserToRoom = (ws: WebSocket, data: string) => {
   const { indexRoom }: AddUserToRoomData = JSON.parse(data);
@@ -21,10 +22,7 @@ export const addUserToRoom = (ws: WebSocket, data: string) => {
 
   room.roomUsers.forEach((user) => {
     createGameBroadcast(user.ws, idGame, user.index);
-
-    roomsStorage.forEach((room) => {
-      if (room.creator === user.index) roomsStorage.delete(room.roomId);
-    });
+    deleteRoomWithUser(user.index);
   });
 
   roomsStorage.delete(indexRoom);

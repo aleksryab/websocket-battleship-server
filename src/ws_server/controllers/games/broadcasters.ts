@@ -33,3 +33,11 @@ export const createGameBroadcast = (
   const response = getStringResponse(CommandTypes.CreateGame, responseData);
   ws.send(response);
 };
+
+export const finishGameBroadcast = (
+  ws: WebSocket,
+  winPlayer: PlayerId | undefined,
+) => {
+  const finishResponse = getStringResponse(CommandTypes.Finish, { winPlayer });
+  ws.send(finishResponse);
+};
